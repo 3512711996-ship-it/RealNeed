@@ -22,11 +22,6 @@ fi
 root_dir="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root_dir"
 
-if [ -f .env.production ]; then
-  echo ".env.production already exists. Refusing to overwrite an existing deployment."
-  exit 1
-fi
-
 if ! swapon --show | grep -q '/swapfile'; then
   fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 status=progress
   chmod 600 /swapfile
@@ -35,38 +30,44 @@ if ! swapon --show | grep -q '/swapfile'; then
   echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
-postgres_password="$(openssl rand -hex 32)"
-redis_password="$(openssl rand -hex 32)"
-encryption_key="$(openssl rand -base64 32 | tr -d '\n')"
+if [ -f .env.production ]; then
+  if ! grep -qx 'PUBLIC_APP_URL=https://pending.trycloudflare.com' .env.production; then
+    echo ".env.production already belongs to a deployment. Refusing to change its credentials."
+    exit 1
+  fi
+  echo "Resuming the pending beta deployment with its existing local credentials."
+else
+  postgres_password="$(openssl rand -hex 32)"
+  redis_password="$(openssl rand -hex 32)"
+  encryption_key="$(openssl rand -base64 32 | tr -d '\n')"
 
-umask 077
-{
-  printf '%s\n' 'NODE_ENV=production'
-  printf '%s\n' 'PUBLIC_APP_URL=https://pending.trycloudflare.com'
-  printf '%s\n' "POSTGRES_PASSWORD=${postgres_password}"
-  printf '%s\n' "DATABASE_URL=postgresql://realneed:${postgres_password}@postgres:5432/realneed?schema=public"
-  printf '%s\n' "REDIS_PASSWORD=${redis_password}"
-  printf '%s\n' "REDIS_URL=redis://:${redis_password}@redis:6379"
-  printf '%s\n' 'RATE_LIMIT_PROVIDER=redis'
-  printf '%s\n' "API_CREDENTIAL_ENCRYPTION_KEY=${encryption_key}"
-  printf '%s\n' 'API_CREDENTIAL_ENCRYPTION_KEY_VERSION=1'
-  printf '%s\n' 'REPORT_GENERATION_API_MODE=USER_PROVIDED_REQUIRED'
-  printf '%s\n' 'ALLOW_INSTANCE_API_FOR_REPORTS=false'
-  printf '%s\n' 'JOB_EXECUTION_MODE=worker'
-  printf '%s\n' 'WORKER_ID=realneed-beta-worker-1'
-  printf '%s\n' 'JOB_POLL_INTERVAL_MS=1500'
-  printf '%s\n' 'JOB_LOCK_TIMEOUT_SECONDS=120'
-  printf '%s\n' 'JUDGMENT_JOB_TIMEOUT_SECONDS=480'
-  printf '%s\n' 'DEEP_DIVE_JOB_TIMEOUT_SECONDS=300'
-  printf '%s\n' 'DATA_CLEANUP_JOB_TIMEOUT_SECONDS=300'
-  printf '%s\n' 'REPORT_RETENTION_DAYS=30'
-  printf '%s\n' 'REPORT_LINK_RETENTION_DAYS=30'
-  printf '%s\n' 'SOURCE_CONTENT_RETENTION_DAYS=7'
-  printf '%s\n' 'ANALYTICS_RETENTION_DAYS=180'
-  printf '%s\n' 'API_USAGE_RETENTION_DAYS=365'
-  printf '%s\n' 'JOB_EVENT_RETENTION_DAYS=30'
-} > .env.production
-chmod 600 .env.production
+  umask 077
+  {
+    printf '%s\n' 'NODE_ENV=production'
+    printf '%s\n' 'PUBLIC_APP_URL=https://pending.trycloudflare.com'
+    printf '%s\n' "POSTGRES_PASSWORD=${postgres_password}"
+    printf '%s\n' "DATABASE_URL=postgresql://realneed:${postgres_password}@postgres:5432/realneed?schema=public"
+    printf '%s\n' "REDIS_PASSWORD=${redis_password}"
+    printf '%s\n' "REDIS_URL=redis://:${redis_password}@redis:6379"
+    printf '%s\n' 'RATE_LIMIT_PROVIDER=redis'
+    printf '%s\n' "API_CREDENTIAL_ENCRYPTION_KEY=${encryption_key}"
+    printf '%s\n' 'API_CREDENTIAL_ENCRYPTION_KEY_VERSION=1'
+    printf '%s\n' 'REPORT_GENERATION_API_MODE=USER_PROVIDED_REQUIRED'
+    printf '%s\n' 'ALLOW_INSTANCE_API_FOR_REPORTS=false'
+    printf '%s\n' 'JOB_EXECUTION_MODE=worker'
+    printf '%s\n' 'WORKER_ID=realneed-beta-worker-1'
+    printf '%s\n' 'JOB_POLL_INTERVAL_MS=1500'
+    printf '%s\n' 'JOB_LOCK_TIMEOUT_SECONDS=120'
+    printf '%s\n' 'JUDGMENT_JOB_TIMEOUT_SECONDS=480'
+    printf '%s\n' 'REPORT_RETENTION_DAYS=30'
+    printf '%s\n' 'REPORT_LINK_RETENTION_DAYS=30'
+    printf '%s\n' 'SOURCE_CONTENT_RETENTION_DAYS=7'
+    printf '%s\n' 'ANALYTICS_RETENTION_DAYS=180'
+    printf '%s\n' 'API_USAGE_RETENTION_DAYS=365'
+    printf '%s\n' 'JOB_EVENT_RETENTION_DAYS=30'
+  } > .env.production
+  chmod 600 .env.production
+fi
 
 compose=(docker compose --env-file .env.production -f docker-compose.production.example.yml -f docker-compose.beta-tunnel.yml)
 "${compose[@]}" up -d --build
