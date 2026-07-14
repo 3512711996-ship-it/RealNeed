@@ -57,7 +57,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     generationStatus: record.generationStatus,
     deliveryStatus: record.deliveryStatus,
     generationError: record.generationError,
-    purchasedDeepDiveMode: record.purchasedDeepDiveMode,
+    deepDiveMode: record.deepDiveMode ?? record.purchasedDeepDiveMode,
     technicalOutcome: record.technicalOutcome,
     marketVerdict: record.marketVerdict,
     confidence: record.confidence
@@ -86,7 +86,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     deliveryStatus: record.deliveryStatus,
     generationError: record.generationError,
     expiresAt: record.expiresAt,
-    purchasedDeepDiveMode: record.purchasedDeepDiveMode,
+    deepDiveMode: record.deepDiveMode ?? record.purchasedDeepDiveMode,
     deepDiveOffer,
     judgment: {
       ...judgment,

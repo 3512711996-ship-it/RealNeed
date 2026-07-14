@@ -137,6 +137,7 @@ export async function queueDeepDive(reportCode: string, options: QueueDeepDiveOp
       technicalOutcome: true,
       marketVerdict: true,
       confidence: true,
+      deepDiveMode: true,
       purchasedDeepDiveMode: true,
       judgmentJson: true,
       deepDiveReport: { select: { id: true } }
@@ -155,7 +156,7 @@ export async function queueDeepDive(reportCode: string, options: QueueDeepDiveOp
     marketVerdict: record.marketVerdict,
     confidence: record.confidence,
     generationStatus: record.generationStatus,
-    purchasedDeepDiveMode: record.purchasedDeepDiveMode
+    deepDiveMode: record.deepDiveMode ?? record.purchasedDeepDiveMode
   } satisfies IdeaJudgment;
   const conceptualEligibility = buildDeepDiveEligibility(judgment);
   const mode = options.mode ?? conceptualEligibility.mode;
@@ -164,7 +165,7 @@ export async function queueDeepDive(reportCode: string, options: QueueDeepDiveOp
     throw Object.assign(new Error(conceptualEligibility.reason), { status: 409, eligibility: conceptualEligibility });
   }
 
-  if (!conceptualEligibility.canPurchase || conceptualEligibility.mode !== mode) {
+  if (!conceptualEligibility.canGenerate || conceptualEligibility.mode !== mode) {
     throw Object.assign(new Error(conceptualEligibility.reason), { status: 409, eligibility: conceptualEligibility });
   }
 
@@ -214,7 +215,7 @@ export async function queueDeepDive(reportCode: string, options: QueueDeepDiveOp
     await tx.ideaJudgmentRecord.update({
       where: { id: record.id },
       data: {
-        purchasedDeepDiveMode: mode,
+        deepDiveMode: mode,
         deepDiveEligibilityJson: toJson(reportEligibility),
         generationStatus: "QUEUED",
         generationError: null
@@ -837,7 +838,7 @@ async function runDeepDiveJob(job: Job, signal: AbortSignal) {
     include: { deepDiveReport: true }
   });
   if (!record) throw new Error("判断记录不存在。");
-  const mode = parseDeepDiveMode(record.purchasedDeepDiveMode) ?? payloadMode;
+  const mode = parseDeepDiveMode(record.deepDiveMode) ?? parseDeepDiveMode(record.purchasedDeepDiveMode) ?? payloadMode;
   if (!mode) throw new Error("Deep Dive 缺少已锁定的报告类型。");
   await appendJobEvent(job.id, { type: "stage", stage: "deep_dive_generating", message: `正在生成${deepDiveModeLabel(mode)}` });
 
@@ -849,7 +850,7 @@ async function runDeepDiveJob(job: Job, signal: AbortSignal) {
     marketVerdict: record.marketVerdict,
     confidence: record.confidence,
     generationStatus: record.generationStatus,
-    purchasedDeepDiveMode: mode
+    deepDiveMode: mode
   } satisfies IdeaJudgment;
   const eligibility = buildReportGenerationEligibility(
     judgment,

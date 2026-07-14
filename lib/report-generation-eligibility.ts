@@ -27,7 +27,7 @@ export function buildReportGenerationEligibility(
   if (!options.workerAvailable && options.workerAvailable !== undefined) {
     return { eligible: false, reportMode: null, generationCredentialReady: generationCredential === "ACTIVE", blockingReason: "WORKER_UNAVAILABLE", reason: "后台 Worker 当前不可用，无法开始报告生成。", ...base };
   }
-  if (!conceptual.canPurchase || !conceptual.mode) {
+  if (!conceptual.canGenerate || !conceptual.mode) {
     return { eligible: false, reportMode: null, generationCredentialReady: generationCredential === "ACTIVE", blockingReason: "SYSTEM_UNAVAILABLE", reason: conceptual.reason.replace("购买", "生成"), ...base };
   }
   const allowInstance = getServerEnv().allowInstanceApiForReports;

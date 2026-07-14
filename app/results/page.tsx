@@ -137,7 +137,7 @@ export default function ResultsPage() {
         />
       ) : null}
       {deepDiveMessage ? <section className="mx-auto max-w-[1120px] px-4 pt-5 sm:px-6"><div className="rounded-[8px] border border-line bg-white p-4 text-sm text-graphite shadow-paper">{deepDiveMessage}{deepDiveUrl ? <a className="ml-3 font-semibold text-ink underline underline-offset-4" href={deepDiveUrl}>打开私有报告</a> : null}</div></section> : null}
-      <JudgmentReport judgment={data} onGenerateFreeReport={() => data.deepDiveOffer?.canPurchase && setDeepDiveOpen(true)} />
+      <JudgmentReport judgment={data} onGenerateFreeReport={() => data.deepDiveOffer?.canGenerate && setDeepDiveOpen(true)} />
       <FreeDeepDiveModal open={deepDiveOpen} onOpenChange={setDeepDiveOpen} judgmentId={data.judgmentId} mode={data.deepDiveOffer?.mode} />
     </main>
   );

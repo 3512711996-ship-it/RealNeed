@@ -26,7 +26,7 @@ export function buildDeepDiveEligibility(judgment: IdeaJudgment, _legacyCapabili
   const evidenceStats = buildEvidenceStats(judgment);
   if (technicalOutcome === "READY" && marketVerdict !== "NOT_AVAILABLE" && evidenceStats.independentEvidenceCount >= 2 && judgment.opportunities.length > 0) {
     return {
-      canPurchase: true,
+      canGenerate: true,
       mode: "EVIDENCE_EXECUTION",
       reason: "已找到足够独立证据，可以生成免费的证据型执行报告。",
       blockers: [],
@@ -36,7 +36,7 @@ export function buildDeepDiveEligibility(judgment: IdeaJudgment, _legacyCapabili
 
   if (repairableOutcomes.has(technicalOutcome)) {
     return {
-      canPurchase: true,
+      canGenerate: true,
       mode: "IDEA_SIGNAL_REPAIR",
       reason:
         technicalOutcome === "SEARCH_NOT_CONFIGURED"
@@ -49,7 +49,7 @@ export function buildDeepDiveEligibility(judgment: IdeaJudgment, _legacyCapabili
 
   if (systemFailureOutcomes.has(technicalOutcome)) {
     return {
-      canPurchase: false,
+      canGenerate: false,
       mode: null,
       reason: "本次判断属于系统或供应商失败。请先重试判断，不生成报告。",
       blockers: [`technicalOutcome=${technicalOutcome}`],
@@ -58,7 +58,7 @@ export function buildDeepDiveEligibility(judgment: IdeaJudgment, _legacyCapabili
   }
 
   return {
-    canPurchase: false,
+    canGenerate: false,
     mode: null,
     reason: "当前报告没有达到证据型 Deep Dive 条件，也不适合补足型报告。",
     blockers: [`technicalOutcome=${technicalOutcome}`],

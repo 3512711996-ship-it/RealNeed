@@ -103,7 +103,7 @@ function serializeOrder(
       generationStatus: record.generationStatus,
       deliveryStatus: record.deliveryStatus,
       generationError: record.generationError,
-      purchasedDeepDiveMode: record.purchasedDeepDiveMode
+      deepDiveMode: record.deepDiveMode ?? record.purchasedDeepDiveMode
     } satisfies IdeaJudgment,
     record.sources
   );
@@ -121,8 +121,8 @@ function serializeOrder(
     paymentStatus: record.paymentStatus,
     generationStatus: record.generationStatus,
     deliveryStatus: record.deliveryStatus,
-    purchasedDeepDiveMode: record.purchasedDeepDiveMode,
-    deepDiveMode: record.deepDiveReport?.mode ?? null,
+    legacyPurchasedDeepDiveMode: record.purchasedDeepDiveMode,
+    deepDiveMode: record.deepDiveMode ?? record.deepDiveReport?.mode ?? null,
     deepDiveOffer,
     generationError: record.generationError,
     createdAt: record.createdAt,

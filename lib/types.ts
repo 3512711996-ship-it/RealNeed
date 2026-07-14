@@ -452,7 +452,7 @@ export type IdeaJudgment = {
   generationStatus?: GenerationStatus;
   deliveryStatus?: DeliveryStatus;
   generationError?: string | null;
-  purchasedDeepDiveMode?: DeepDiveMode | null;
+  deepDiveMode?: DeepDiveMode | null;
   deepDiveOffer?: DeepDiveEligibility;
   reportGenerationEligibility?: ReportGenerationEligibility;
   scanStats?: {
@@ -483,7 +483,7 @@ export type IdeaJudgment = {
 };
 
 export type DeepDiveEligibility = {
-  canPurchase: boolean;
+  canGenerate: boolean;
   mode: DeepDiveMode | null;
   reason: string;
   blockers: string[];

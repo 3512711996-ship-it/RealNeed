@@ -7,7 +7,8 @@ describe("free Deep Dive eligibility", () => {
   it("maps insufficient evidence to a repair report without claiming a validated opportunity", () => {
     const conceptual = buildDeepDiveEligibility(baseJudgment("INSUFFICIENT_EVIDENCE"));
     const eligibility = buildReportGenerationEligibility(baseJudgment("INSUFFICIENT_EVIDENCE"), "ACTIVE");
-    expect(conceptual.mode).toBe("IDEA_SIGNAL_REPAIR");
+    expect(conceptual).toMatchObject({ canGenerate: true, mode: "IDEA_SIGNAL_REPAIR" });
+    expect(conceptual).not.toHaveProperty("canPurchase");
     expect(eligibility).toMatchObject({ eligible: true, reportMode: "IDEA_SIGNAL_REPAIR", generationCredentialRequired: true, searchCredentialRequired: false });
   });
 

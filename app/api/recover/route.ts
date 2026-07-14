@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       generationStatus: true,
       deliveryStatus: true,
       generationError: true,
+      deepDiveMode: true,
       purchasedDeepDiveMode: true,
       sources: true
     }
@@ -54,7 +55,7 @@ export async function POST(request: Request) {
       generationStatus: record.generationStatus,
       deliveryStatus: record.deliveryStatus,
       generationError: record.generationError,
-      purchasedDeepDiveMode: record.purchasedDeepDiveMode
+      deepDiveMode: record.deepDiveMode ?? record.purchasedDeepDiveMode
     } satisfies IdeaJudgment,
     record.sources
   );

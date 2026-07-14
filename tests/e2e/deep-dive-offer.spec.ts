@@ -88,7 +88,7 @@ function repairJudgment() {
       evidenceSourceIds: []
     },
     deepDiveOffer: {
-      canPurchase: true,
+      canGenerate: true,
       mode: "IDEA_SIGNAL_REPAIR",
       reason: "A free repair report can map the evidence gap.",
       blockers: [],

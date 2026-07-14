@@ -211,6 +211,8 @@ model IdeaJudgmentRecord {
   legacyPaymentReadOnly   Boolean               @default(false)
   generationStatus        GenerationStatus      @default(NOT_STARTED)
   deliveryStatus          DeliveryStatus        @default(NOT_SENT)
+  // New free-BYOK report mode. The purchased field below is retained only for historical payment audits.
+  deepDiveMode            DeepDiveMode?
   purchasedDeepDiveMode   DeepDiveMode?
   deepDiveEligibilityJson Json                  @default("{}")
   paidAt                  DateTime?
@@ -237,6 +239,7 @@ model IdeaJudgmentRecord {
   @@index([paymentStatus])
   @@index([generationStatus])
   @@index([deliveryStatus])
+  @@index([deepDiveMode])
   @@index([purchasedDeepDiveMode])
   @@index([technicalOutcome])
   @@index([marketVerdict])

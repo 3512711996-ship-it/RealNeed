@@ -25,7 +25,7 @@ export function JudgmentReport({
   const manualPaste = judgment.accessibleSources.some((source) => !source.url || source.platform.includes("用户粘贴"));
   const hasStrongOrMedium = judgment.strongSignals.length + judgment.mediumSignals.length > 0;
   const canShowOpportunities = judgment.marketVerdict !== "NOT_AVAILABLE" && judgment.opportunities.length > 0 && (judgment.qualifyingIndependentEvidenceCount ?? 0) >= 2;
-  const canShowDeepDiveOffer = Boolean(judgment.deepDiveOffer?.canPurchase && judgment.deepDiveOffer.mode);
+  const canShowDeepDiveOffer = Boolean(judgment.deepDiveOffer?.canGenerate && judgment.deepDiveOffer.mode);
   const offerEventSent = useRef(false);
 
   useEffect(() => {
