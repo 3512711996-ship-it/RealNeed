@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { callKimiJson } from "@/lib/kimi";
 import { extractEvidencePrompt } from "@/lib/prompts";
+import { ProviderExecutionError } from "@/lib/providers/shared-errors";
 import type { ApiUsageContext } from "@/lib/usage-tracker";
 import type { EvidenceSource, InterpretedIdea, SearchResult } from "@/lib/types";
 
@@ -61,6 +62,7 @@ export async function extractEvidence({
       warnings: evidence.length ? [] : ["没有从 verified sources 中抽取到足够明确的真实需求证据。"]
     };
   } catch (error) {
+    if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi evidence extraction failed";
     throw new EvidenceExtractionError(message);
   }

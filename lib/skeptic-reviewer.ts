@@ -2,6 +2,7 @@ import { z } from "zod";
 import { callKimiJson } from "@/lib/kimi";
 import { sanitizeOpportunities } from "@/lib/opportunity-generator";
 import { skepticReviewPrompt } from "@/lib/prompts";
+import { ProviderExecutionError } from "@/lib/providers/shared-errors";
 import type { EvidenceSource, ProductOpportunity } from "@/lib/types";
 
 const SkepticReviewSchema = z.object({
@@ -60,6 +61,7 @@ export async function skepticReview({
       warnings: response.warnings
     };
   } catch (error) {
+    if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi skeptic review failed";
     throw new SkepticReviewError(message);
   }

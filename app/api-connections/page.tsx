@@ -223,13 +223,20 @@ export default function ApiConnectionsPage() {
             </Field>
 
             {kind === "GENERATION" ? (
-              <Field label="模型">
-                <select className="field-select" value={model} onChange={(event) => { setModel(event.target.value); setTestProof(""); }} disabled={busy}>
-                  {generationModels.map((item) => (
-                    <option key={item.modelId} value={item.modelId}>{item.displayName}</option>
-                  ))}
-                </select>
-              </Field>
+              <>
+                <Field label="模型">
+                  <select className="field-select" value={model} onChange={(event) => { setModel(event.target.value); setTestProof(""); }} disabled={busy}>
+                    {generationModels.map((item) => (
+                      <option key={item.modelId} value={item.modelId}>{item.displayName}</option>
+                    ))}
+                  </select>
+                </Field>
+                {provider === "DEEPSEEK" ? (
+                  <p className="-mt-2 text-xs leading-5 text-helper">
+                    已支持 DeepSeek 官方 API。新连接请选 DeepSeek V4 Flash；测试通过后才会加密保存并用于后台任务。
+                  </p>
+                ) : null}
+              </>
             ) : null}
 
             <Field label="API Key">

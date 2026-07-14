@@ -10,33 +10,68 @@ const responseSchema = z.object({ id: z.string().nullish(), choices: z.array(z.o
 export class DeepSeekGenerationAdapter implements GenerationProviderAdapter {
   readonly provider = "DEEPSEEK" as const;
   constructor(private readonly fetchImpl: typeof fetch = fetch) {}
-  getCapabilities(model: string) { return getSupportedModel(this.provider, model)?.capabilities ?? unsupported(); }
+
+  getCapabilities(model: string) {
+    return getSupportedModel(this.provider, model)?.capabilities ?? unsupported();
+  }
+
   async testConnection(input: { apiKey: string; model: string; signal?: AbortSignal }) {
     const schema = z.object({ connected: z.literal(true) }).strict();
-    const output = await this.generateStructured({ apiKey: input.apiKey, model: input.model, systemPrompt: "Return JSON only.", userPrompt: "Return {\connected\:true}.", schema, schemaName: "connection_test", maxOutputTokens: 32, temperature: 0, signal: input.signal, credentialSource: "USER_PROVIDED" });
+    const output = await this.generateStructured({
+      apiKey: input.apiKey,
+      model: input.model,
+      systemPrompt: "You are a connection test. Respond with exactly one JSON object and no Markdown.",
+      userPrompt: 'Return exactly this JSON object: {"connected":true}',
+      schema,
+      schemaName: "connection_test",
+      maxOutputTokens: 32,
+      temperature: 0,
+      signal: input.signal,
+      credentialSource: "USER_PROVIDED"
+    });
     return { connected: output.data.connected, provider: this.provider, model: input.model, providerRequestId: output.providerRequestId, durationMs: output.durationMs };
   }
+
   async generateStructured<T>(input: StructuredGenerationInput<T>): Promise<StructuredGenerationResult<T>> {
     assertSupported(this.provider, input.model);
     const startedAt = Date.now();
     const first = await this.call(input, input.systemPrompt, input.userPrompt);
-    try { return makeResult(input.model, first, startedAt, parseStructuredOutput(this.provider, first.content, input.schema)); }
-    catch (error) {
+    try {
+      return makeResult(input.model, first, startedAt, parseStructuredOutput(this.provider, first.content, input.schema));
+    } catch (error) {
       if (!(error instanceof ProviderExecutionError) || error.code !== "PROVIDER_RESPONSE_INVALID") throw error;
       const repair = repairPrompts(first.content, input.schemaName);
       const second = await this.call(input, repair.systemPrompt, repair.userPrompt);
       return makeResult(input.model, second, startedAt, parseStructuredOutput(this.provider, second.content, input.schema));
     }
   }
+
   private async call<T>(input: StructuredGenerationInput<T>, systemPrompt: string, userPrompt: string) {
-    const raw = await requestGenerationJson({ provider: this.provider, url: endpoint, credentialSource: input.credentialSource, fetchImpl: this.fetchImpl,
-      init: { method: "POST", headers: { Authorization: `Bearer ${input.apiKey}`, "Content-Type": "application/json" }, signal: input.signal,
-        body: JSON.stringify({ model: input.model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], response_format: { type: "json_object" }, temperature: normalizeTemperature(input.temperature), max_tokens: normalizeMaxTokens(input.maxOutputTokens) }) } });
+    const raw = await requestGenerationJson({
+      provider: this.provider,
+      url: endpoint,
+      credentialSource: input.credentialSource,
+      fetchImpl: this.fetchImpl,
+      init: {
+        method: "POST",
+        headers: { Authorization: `Bearer ${input.apiKey}`, "Content-Type": "application/json" },
+        signal: input.signal,
+        body: JSON.stringify({
+          model: input.model,
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+          response_format: { type: "json_object" },
+          thinking: { type: "disabled" },
+          temperature: normalizeTemperature(input.temperature),
+          max_tokens: normalizeMaxTokens(input.maxOutputTokens)
+        })
+      }
+    });
     const parsed = responseSchema.safeParse(raw.payload);
     if (!parsed.success || !parsed.data.choices[0]?.message.content) throw providerResponseInvalid(this.provider, "GENERATION");
     return { content: parsed.data.choices[0].message.content, requestId: raw.requestId ?? parsed.data.id ?? null, inputTokens: parsed.data.usage?.prompt_tokens ?? null, outputTokens: parsed.data.usage?.completion_tokens ?? null };
   }
 }
+
 type Raw = { content: string; requestId: string | null; inputTokens: number | null; outputTokens: number | null };
 function makeResult<T>(model: string, raw: Raw, startedAt: number, data: T): StructuredGenerationResult<T> { return { provider: "DEEPSEEK", model, data, usage: { inputTokens: raw.inputTokens, outputTokens: raw.outputTokens }, providerRequestId: raw.requestId, durationMs: Date.now() - startedAt }; }
 function unsupported() { return { structuredOutput: false, nativeJsonSchema: false, jsonMode: false, longContext: false, streaming: false, toolCalling: false, testedByRealNeed: false }; }

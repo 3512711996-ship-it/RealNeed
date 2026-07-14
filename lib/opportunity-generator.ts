@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { callKimiJson } from "@/lib/kimi";
 import { generateOpportunitiesPrompt } from "@/lib/prompts";
+import { ProviderExecutionError } from "@/lib/providers/shared-errors";
 import type { ApiUsageContext } from "@/lib/usage-tracker";
 import type { EvidenceSource, InterpretedIdea, ProductOpportunity } from "@/lib/types";
 
@@ -74,6 +75,7 @@ export async function generateOpportunities({
       warnings: opportunities.length ? [] : ["Kimi 生成的机会未通过证据绑定审查，已全部过滤。"]
     };
   } catch (error) {
+    if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi opportunity generation failed";
     throw new OpportunityGenerationError(message);
   }

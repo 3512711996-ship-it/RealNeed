@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { callKimiJson } from "@/lib/kimi";
 import { interpretIdeaPrompt } from "@/lib/prompts";
+import { ProviderExecutionError } from "@/lib/providers/shared-errors";
 import type { ApiUsageContext } from "@/lib/usage-tracker";
 import type { InterpretedIdea } from "@/lib/types";
 
@@ -37,6 +38,7 @@ export async function interpretIdea(idea: string, usage?: Omit<ApiUsageContext, 
 
     return { interpretedIdea, usedKimi: true, warnings: [] };
   } catch (error) {
+    if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi idea interpretation failed";
     throw new IdeaInterpretationError(message);
   }

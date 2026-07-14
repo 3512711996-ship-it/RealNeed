@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { callKimiJson } from "@/lib/kimi";
-import { requireAnalysisConfigured } from "@/lib/env";
+import { ProviderExecutionError } from "@/lib/providers/shared-errors";
 import type { ApiUsageContext } from "@/lib/usage-tracker";
 import type { InterpretedIdea } from "@/lib/types";
 
@@ -49,8 +49,6 @@ export async function generateSearchQueryPlan(
   interpretedIdea: InterpretedIdea,
   usage?: Omit<ApiUsageContext, "operation">
 ): Promise<SearchQueryPlanItem[]> {
-  requireAnalysisConfigured();
-
   try {
     const response = await callKimiJson({
       schema: QueryPlanSchema,
@@ -81,6 +79,7 @@ export async function generateSearchQueryPlan(
 
     return uniqueQueries(response.queries);
   } catch (error) {
+    if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi query generation failed";
     throw new QueryGenerationError(message);
   }
