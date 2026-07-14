@@ -66,6 +66,23 @@ npm run production:preflight
 See [self-hosting](docs/self-hosting.md), [BYOK security](docs/byok-security.md),
 [provider system](docs/provider-system.md), and [evidence policy](docs/evidence-policy.md).
 
+## Temporary beta without a domain
+
+For a short private beta on a Docker-enabled Linux server, the repository
+includes a Cloudflare quick-tunnel helper. It creates local service credentials
+on the server and returns a temporary HTTPS URL. The URL can change when the
+tunnel is recreated and is not a substitute for a domain, ICP filing, backups,
+or a production deployment.
+
+```bash
+git clone https://github.com/3512711996-ship-it/RealNeed.git
+cd RealNeed
+sudo bash scripts/deploy-beta-tunnel.sh
+```
+
+The official production deployment still requires a custom HTTPS domain,
+separate operational controls, and the requirements in [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Safety guarantees
 
 - No invented URLs, Reddit posts, or mock production evidence.
