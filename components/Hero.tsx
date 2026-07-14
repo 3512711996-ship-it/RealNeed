@@ -13,7 +13,7 @@ const process = ["输入想法", "澄清人群和场景", "读取需求信号", 
 export function Hero() {
   return (
     <main className="min-h-screen bg-paper text-ink">
-      <header className="sticky top-0 z-30 border-b border-line bg-paper/88 backdrop-blur">
+      <header className="hidden">
         <nav className="mx-auto flex max-w-[1120px] items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/" className="inline-flex items-center gap-2 text-xl font-semibold tracking-normal">
             <span className="grid h-8 w-8 place-items-center rounded-[7px] bg-ink text-paper">
@@ -46,7 +46,7 @@ export function Hero() {
       </header>
 
       <section className="paper-grid border-b border-line">
-        <div className="mx-auto grid max-w-[1120px] gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:min-h-[calc(100vh-73px)] lg:grid-cols-[1fr_0.86fr] lg:items-center">
+        <div className="mx-auto grid max-w-[1120px] gap-8 px-4 py-10 sm:px-6 sm:py-14 lg:min-h-[calc(100vh-56px)] lg:grid-cols-[1fr_0.86fr] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <p className="mb-4 inline-flex items-center gap-2 rounded-[6px] border border-line bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-helper">
               <FileQuestion className="h-3.5 w-3.5 text-ink" />

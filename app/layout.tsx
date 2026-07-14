@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { AppNavigation } from "@/components/AppNavigation";
 import { CustomCursor } from "@/components/CustomCursor";
 import "./globals.css";
 
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html lang="zh-CN">
       <body>
         <CustomCursor />
+        <AppNavigation />
         {children}
       </body>
     </html>
