@@ -1,0 +1,60 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.local
+.env.production
+.env.*.local
+.next/
+.next-dev-logs/
+node_modules/
+logs/
+test-results/
+playwright-report/
+*.log
+*.sql.gz
+*.dump
+backups/
+docs/generated/
+source-audit.csv
+.codex-dev.log
+.codex-worker.log
+dev-server.log
+
+# This workspace also contains a private local LifeOS vault. It is not part of
+# the RealNeed open-source distribution.
+/00_Inbox/
+/01 财富/
+/01_财富/
+/02 健康/
+/02_健康/
+/03 关系/
+/03_关系/
+/04 成长/
+/04_成长/
+/05 创造与事业/
+/05_创造与事业/
+/06 学习/
+/06_学习/
+/07 精神与意义/
+/07_精神与意义/
+/08 生活管理/
+/08_生活管理/
+/09 资产库/
+/09_资产库/
+/10 Inbox 收集箱/
+/10_AgentCenter/
+/config/
+/templates/
+/skills/
+/lifeos.py
+/Index.md
+/source-audit.csv
+out/
+dist/
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.obsidian/workspace.json
+Thumbs.db
+.DS_Store

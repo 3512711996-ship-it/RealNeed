@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RealNeed Logo Concepts</title>
+    <style>
+      :root {
+        --ink: #111111;
+        --graphite: #3f3f3f;
+        --helper: #737373;
+        --paper: #faf8f1;
+        --paper-2: #f7f4ec;
+        --lime: #c6f36a;
+        --line: #e5e0d6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(rgba(25, 25, 22, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(25, 25, 22, 0.035) 1px, transparent 1px),
+          var(--paper);
+        background-size: 32px 32px;
+        color: var(--ink);
+        font-family: Aptos, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 48px 20px 64px;
+      }
+
+      header {
+        display: grid;
+        gap: 16px;
+        margin-bottom: 28px;
+        max-width: 780px;
+      }
+
+      .eyebrow {
+        color: var(--helper);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 7vw, 76px);
+        letter-spacing: 0;
+        line-height: 0.96;
+      }
+
+      p {
+        margin: 0;
+        color: var(--graphite);
+        font-size: 16px;
+        line-height: 1.8;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        min-height: 430px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.58);
+        box-shadow: 0 18px 48px rgba(17, 17, 17, 0.06);
+        overflow: hidden;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(17, 17, 17, 0.32);
+        box-shadow: 0 24px 56px rgba(17, 17, 17, 0.1);
+      }
+
+      .stage {
+        display: grid;
+        min-height: 210px;
+        place-items: center;
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at 70% 30%, rgba(198, 243, 106, 0.35), transparent 24%),
+          var(--paper-2);
+        color: var(--ink);
+      }
+
+      .stage.dark {
+        background: #111111;
+        color: var(--paper);
+      }
+
+      .mark {
+        width: 112px;
+        height: 112px;
+      }
+
+      .content {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: white;
+        color: var(--helper);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 8px;
+      }
+
+      .tag.lime {
+        border-color: rgba(198, 243, 106, 0.75);
+        background: rgba(198, 243, 106, 0.28);
+        color: var(--ink);
+      }
+
+      .sizes {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        color: var(--ink);
+      }
+
+      .sizes svg:nth-child(1) {
+        width: 16px;
+        height: 16px;
+      }
+
+      .sizes svg:nth-child(2) {
+        width: 28px;
+        height: 28px;
+      }
+
+      .sizes svg:nth-child(3) {
+        width: 44px;
+        height: 44px;
+      }
+
+      .nav-test {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 10px 12px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .nav-test .box {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      .nav-test svg {
+        width: 21px;
+        height: 21px;
+      }
+
+      .note {
+        margin-top: 24px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #111111;
+        color: rgba(250, 248, 241, 0.84);
+        padding: 18px;
+      }
+
+      .note strong {
+        color: var(--lime);
+      }
+
+      @media (max-width: 920px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        main {
+          padding-top: 32px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="eyebrow">RealNeed / logo concepts</div>
+        <h1>Evidence first. Quiet mark. Strong signal.</h1>
+        <p>
+          Six SVG directions matched to the current RealNeed interface: off-white paper, black ink, muted lime highlights,
+          soft grid texture, and a judgment-console mood. The symbols stay simple, scalable, and editable with currentColor.
+        </p>
+      </header>
+
+      <section class="grid" aria-label="Logo concepts">
+        <article class="card">
+          <div class="stage dark">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <g fill="none" stroke="currentColor" stroke-linecap="round">
+                <path d="M50 16a34 34 0 0 1 31 21" stroke-width="4" opacity=".34"/>
+                <path d="M84 50a34 34 0 0 1-21 31" stroke-width="4"/>
+                <path d="M50 84a34 34 0 0 1-31-21" stroke-width="4" opacity=".68"/>
+                <path d="M16 50a34 34 0 0 1 21-31" stroke-width="4"/>
+                <circle cx="50" cy="50" r="10" stroke-width="3"/>
+              </g>
+              <circle cx="65" cy="35" r="5" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>01 Signal Aperture</h2>
+            <div class="meta"><span class="tag lime">closest to current UI</span><span class="tag">radar</span></div>
+            <p>Broken radar arcs plus one verified point. It keeps the existing scan feeling, but looks less like a generic icon.</p>
+            <div class="sizes">
+              <svg viewBox="0 0 100 100"><use href="#v1"/></svg>
+              <svg viewBox="0 0 100 100"><use href="#v1"/></svg>
+              <svg viewBox="0 0 100 100"><use href="#v1"/></svg>
+            </div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v1"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="stage">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#v2"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>02 Evidence Dots</h2>
+            <div class="meta"><span class="tag">dot matrix</span><span class="tag">evidence wall</span></div>
+            <p>A sparse evidence wall with a diagonal truth path. More product-specific than a plain magnifier.</p>
+            <div class="sizes"><svg viewBox="0 0 100 100"><use href="#v2"/></svg><svg viewBox="0 0 100 100"><use href="#v2"/></svg><svg viewBox="0 0 100 100"><use href="#v2"/></svg></div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v2"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="stage dark">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#v3"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>03 Filtered Core</h2>
+            <div class="meta"><span class="tag lime">boldest</span><span class="tag">filtering</span></div>
+            <p>A solid source core with rounded cutouts. It says: subtract noise before claiming signal.</p>
+            <div class="sizes"><svg viewBox="0 0 100 100"><use href="#v3"/></svg><svg viewBox="0 0 100 100"><use href="#v3"/></svg><svg viewBox="0 0 100 100"><use href="#v3"/></svg></div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v3"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="stage">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#v4"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>04 Case Lines</h2>
+            <div class="meta"><span class="tag">case file</span><span class="tag">report</span></div>
+            <p>A case-file frame with compressed lines and a decision point. Best for report-heavy positioning.</p>
+            <div class="sizes"><svg viewBox="0 0 100 100"><use href="#v4"/></svg><svg viewBox="0 0 100 100"><use href="#v4"/></svg><svg viewBox="0 0 100 100"><use href="#v4"/></svg></div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v4"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="stage dark">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#v5"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>05 Truth Nodes</h2>
+            <div class="meta"><span class="tag">source graph</span><span class="tag">converging signal</span></div>
+            <p>Several weak inputs converge into one judged signal. Feels AI-native without becoming flashy.</p>
+            <div class="sizes"><svg viewBox="0 0 100 100"><use href="#v5"/></svg><svg viewBox="0 0 100 100"><use href="#v5"/></svg><svg viewBox="0 0 100 100"><use href="#v5"/></svg></div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v5"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="stage">
+            <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+              <use href="#v6"/>
+            </svg>
+          </div>
+          <div class="content">
+            <h2>06 Need Mark</h2>
+            <div class="meta"><span class="tag">letter mark</span><span class="tag">favicon-safe</span></div>
+            <p>An abstract N for Need. It is the simplest and most reusable option for favicon and social avatar.</p>
+            <div class="sizes"><svg viewBox="0 0 100 100"><use href="#v6"/></svg><svg viewBox="0 0 100 100"><use href="#v6"/></svg><svg viewBox="0 0 100 100"><use href="#v6"/></svg></div>
+            <div class="nav-test"><span class="box"><svg viewBox="0 0 100 100"><use href="#v6"/></svg></span>RealNeed</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="note">
+        <strong>Recommendation:</strong> start from 01 if you want continuity with the current radar UI, or 03 if you want a stronger proprietary brand mark.
+        I would avoid 06 as the main identity unless you want RealNeed to feel more like a generic SaaS brand.
+      </section>
+    </main>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <symbol id="v1" viewBox="0 0 100 100">
+        <g fill="none" stroke="currentColor" stroke-linecap="round">
+          <path d="M50 16a34 34 0 0 1 31 21" stroke-width="4" opacity=".34"/>
+          <path d="M84 50a34 34 0 0 1-21 31" stroke-width="4"/>
+          <path d="M50 84a34 34 0 0 1-31-21" stroke-width="4" opacity=".68"/>
+          <path d="M16 50a34 34 0 0 1 21-31" stroke-width="4"/>
+          <circle cx="50" cy="50" r="10" stroke-width="3"/>
+        </g>
+        <circle cx="65" cy="35" r="5" fill="currentColor"/>
+      </symbol>
+
+      <symbol id="v2" viewBox="0 0 100 100">
+        <g fill="currentColor">
+          <rect x="24" y="25" width="12" height="12" rx="4"/>
+          <rect x="44" y="25" width="12" height="12" rx="4" opacity=".42"/>
+          <rect x="64" y="25" width="12" height="12" rx="4"/>
+          <rect x="24" y="45" width="12" height="12" rx="4" opacity=".42"/>
+          <rect x="44" y="45" width="12" height="12" rx="4"/>
+          <rect x="64" y="45" width="12" height="12" rx="4" opacity=".42"/>
+          <rect x="24" y="65" width="12" height="12" rx="4"/>
+          <rect x="64" y="65" width="12" height="12" rx="4"/>
+        </g>
+        <path d="M31 71 50 51 70 31" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="v3" viewBox="0 0 100 100">
+        <defs>
+          <mask id="showcase-filtered-core-mask">
+            <rect width="100" height="100" fill="#fff"/>
+            <circle cx="58" cy="33" r="5" fill="#000"/>
+            <circle cx="70" cy="43" r="4" fill="#000"/>
+            <circle cx="57" cy="55" r="4.5" fill="#000"/>
+            <circle cx="43" cy="43" r="4" fill="#000"/>
+          </mask>
+        </defs>
+        <circle cx="50" cy="50" r="33" fill="currentColor" mask="url(#showcase-filtered-core-mask)"/>
+        <circle cx="31" cy="68" r="5" fill="currentColor" opacity=".48"/>
+      </symbol>
+
+      <symbol id="v4" viewBox="0 0 100 100">
+        <defs>
+          <clipPath id="showcase-case-lines-clip">
+            <rect x="20" y="22" width="60" height="56" rx="14"/>
+          </clipPath>
+        </defs>
+        <rect x="20" y="22" width="60" height="56" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+        <g clip-path="url(#showcase-case-lines-clip)" fill="none" stroke="currentColor" stroke-linecap="round">
+          <path d="M27 36h33" stroke-width="4"/>
+          <path d="M27 48h45" stroke-width="3" opacity=".64"/>
+          <path d="M27 60h26" stroke-width="4"/>
+          <path d="M62 60h10" stroke-width="4" opacity=".34"/>
+        </g>
+        <circle cx="69" cy="35" r="5" fill="currentColor"/>
+      </symbol>
+
+      <symbol id="v5" viewBox="0 0 100 100">
+        <g fill="none" stroke="currentColor" stroke-linecap="round">
+          <path d="M32 35c12 4 21 11 28 26" stroke-width="3" opacity=".7"/>
+          <path d="M64 31c-5 10-6 20-4 30" stroke-width="3" opacity=".46"/>
+          <path d="M36 70c8-4 16-5 24-9" stroke-width="3"/>
+        </g>
+        <circle cx="32" cy="35" r="7" fill="currentColor"/>
+        <circle cx="64" cy="31" r="5" fill="currentColor" opacity=".62"/>
+        <circle cx="36" cy="70" r="5" fill="currentColor" opacity=".42"/>
+        <circle cx="60" cy="61" r="9" fill="currentColor"/>
+      </symbol>
+
+      <symbol id="v6" viewBox="0 0 100 100">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M28 74V26l44 48V26" stroke-width="8"/>
+          <path d="M28 74h44" stroke-width="4" opacity=".38"/>
+        </g>
+        <circle cx="72" cy="26" r="5" fill="currentColor"/>
+      </symbol>
+    </svg>
+  </body>
+</html>

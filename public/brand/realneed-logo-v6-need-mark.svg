@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">RealNeed Need Mark</title>
+  <desc id="desc">A geometric N shaped judgment mark with a grounded signal point.</desc>
+  <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 74V26l44 48V26" stroke-width="8"/>
+    <path d="M28 74h44" stroke-width="4" opacity=".38"/>
+  </g>
+  <circle cx="72" cy="26" r="5" fill="currentColor"/>
+</svg>

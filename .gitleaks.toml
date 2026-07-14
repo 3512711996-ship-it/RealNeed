@@ -1,0 +1,9 @@
+title = "RealNeed secret scanning policy"
+
+[allowlist]
+  description = "Synthetic test credentials only"
+  regexes = [
+    '''sk-test''',
+    '''tvly-test''',
+    '''rn_(report|recover|csrf)_[A-Za-z0-9_-]+'''
+  ]

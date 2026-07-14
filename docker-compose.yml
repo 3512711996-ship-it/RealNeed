@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_DB: realneed
+      POSTGRES_USER: realneed
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes: [realneed_postgres:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U realneed -d realneed"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  redis:
+    image: redis:7-bookworm
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?set REDIS_PASSWORD}"]
+    volumes: [realneed_redis:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  migrate:
+    build: .
+    env_file: ${REALNEED_ENV_FILE:-.env.production}
+    command: ["npm", "run", "migrate:deploy"]
+    depends_on: { postgres: { condition: service_healthy } }
+  web:
+    build: .
+    env_file: ${REALNEED_ENV_FILE:-.env.production}
+    command: ["npm", "run", "start:production"]
+    ports: ["3000:3000"]
+    depends_on: { migrate: { condition: service_completed_successfully }, redis: { condition: service_started } }
+  worker:
+    build: .
+    env_file: ${REALNEED_ENV_FILE:-.env.production}
+    command: ["npm", "run", "worker"]
+    depends_on: { migrate: { condition: service_completed_successfully }, redis: { condition: service_started } }
+  cleanup-scheduler:
+    build: .
+    env_file: ${REALNEED_ENV_FILE:-.env.production}
+    command: ["npm", "run", "cleanup:scheduler"]
+    depends_on: { migrate: { condition: service_completed_successfully }, redis: { condition: service_started } }
+volumes:
+  realneed_postgres:
+  realneed_redis:

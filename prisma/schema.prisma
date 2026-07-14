@@ -1,0 +1,697 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+}
+
+enum GenerationStatus {
+  NOT_STARTED
+  QUEUED
+  GENERATING
+  READY
+  FAILED
+}
+
+enum DeliveryStatus {
+  NOT_SENT
+  SENT
+  REVOKED
+}
+
+enum DeepDiveMode {
+  EVIDENCE_EXECUTION
+  IDEA_SIGNAL_REPAIR
+}
+
+enum JobType {
+  JUDGMENT
+  DEEP_DIVE
+  DATA_CLEANUP
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  WAITING_FOR_CREDENTIAL
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum CredentialSource {
+  PLATFORM
+  USER_PROVIDED
+}
+
+enum ProviderType {
+  SEARCH
+  GENERATION
+}
+
+enum ApiCredentialKind {
+  SEARCH
+  GENERATION
+}
+
+enum ApiCredentialStatus {
+  ACTIVE
+  INVALID
+  EXPIRED
+  REVOKED
+  PENDING_VERIFICATION
+}
+
+enum TechnicalOutcome {
+  READY
+  SEARCH_NOT_CONFIGURED
+  SEARCH_FAILED
+  NO_SEARCH_RESULTS
+  EXTRACTION_INCOMPLETE
+  VERIFICATION_INCOMPLETE
+  SOURCES_BLOCKED
+  INSUFFICIENT_EVIDENCE
+  ANALYSIS_FAILED
+  DATABASE_FAILED
+  PROCESSING_FAILED
+}
+
+enum MarketVerdict {
+  BUILD_SMALL_MVP
+  VALIDATE_FIRST
+  TALK_TO_USERS
+  KILL_OR_REFRAME
+  NOT_AVAILABLE
+}
+
+enum JudgmentConfidence {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ClusterType {
+  SAME_URL
+  SAME_THREAD
+  SAME_DISCUSSION
+  SAME_CONTENT
+  SAME_CLAIM
+}
+
+enum SourceAccessStatus {
+  ACCESSIBLE
+  REDIRECTED_ACCESSIBLE
+  BLOCKED
+  RATE_LIMITED
+  NOT_FOUND
+  TIMEOUT
+  NETWORK_ERROR
+  INVALID_URL
+  UNSUPPORTED_CONTENT
+  BODY_TOO_LARGE
+  REDIRECT_BLOCKED
+  UNVERIFIED
+}
+
+enum SourceType {
+  USER_DISCUSSION
+  USER_REVIEW
+  QUESTION_ANSWER
+  SUPPORT_REQUEST
+  COMMUNITY_POST
+  USER_COMPLAINT
+  MARKETPLACE_LISTING
+  PAID_SERVICE
+  OFFICIAL_PRODUCT_PAGE
+  COMMERCIAL_PROMOTION
+  SEO_ARTICLE
+  TUTORIAL
+  NEWS_ARTICLE
+  MEDIA_REVIEW
+  TOOL_COMPARISON
+  AFFILIATE_PAGE
+  MARKET_REPORT_SUMMARY
+  VENDOR_DOCUMENTATION
+  LANDING_PAGE
+  UNKNOWN
+}
+
+enum EvidenceEligibility {
+  ELIGIBLE_USER_EVIDENCE
+  BACKGROUND_ONLY
+  COMPETITOR_ONLY
+  IRRELEVANT
+  UNVERIFIED
+}
+
+enum RecordEvidenceStrength {
+  STRONG
+  MEDIUM
+  WEAK
+  IRRELEVANT
+  NOT_CLASSIFIED
+}
+
+enum PaymentSignalLevel {
+  NONE
+  WEAK
+  MEDIUM
+  STRONG
+  EXPLICIT
+}
+
+enum MarketScope {
+  DOMESTIC
+  OVERSEAS
+  CROSS_MARKET
+  UNKNOWN
+}
+
+enum ReportAccessStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum SourceOrigin {
+  SEARCH_PROVIDER
+  USER_PASTED
+  USER_URL
+  MANUAL_IMPORT
+  UNTRUSTED_LEGACY_SOURCE
+}
+
+enum EvidenceAvailability {
+  CONFIRMED_CONTENT
+  SEARCH_LEAD
+  NO_EVIDENCE
+}
+
+model IdeaJudgmentRecord {
+  id                      String                @id @default(cuid())
+  reportCode              String                @unique
+  recoveryTokenHash       String?               @unique
+  originalIdea            String
+  interpretedIdea         String?
+  interpretedIdeaJson     Json?
+  judgmentJson            Json
+  technicalOutcome        TechnicalOutcome      @default(PROCESSING_FAILED)
+  marketVerdict           MarketVerdict         @default(NOT_AVAILABLE)
+  confidence              JudgmentConfidence    @default(VERY_LOW)
+  paymentStatus           PaymentStatus         @default(UNPAID)
+  legacyPaymentReadOnly   Boolean               @default(false)
+  generationStatus        GenerationStatus      @default(NOT_STARTED)
+  deliveryStatus          DeliveryStatus        @default(NOT_SENT)
+  purchasedDeepDiveMode   DeepDiveMode?
+  deepDiveEligibilityJson Json                  @default("{}")
+  paidAt                  DateTime?
+  paymentConfirmedAt      DateTime?
+  refundedAt              DateTime?
+  paymentReference        String?
+  customerContactNote     String?
+  adminNote               String?
+  generationError         String?
+  deliveredAt             DateTime?
+  expiresAt               DateTime?
+  deletedAt               DateTime?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  deepDiveReport          DeepDiveReport?
+  jobs                    Job[]
+  runs                    JudgmentRun[]
+  sources                 SourceRecord[]
+  clusters                EvidenceCluster[]
+  searchRequests          SearchRequestRecord[]
+  apiUsageRecords         ApiUsageRecord[]
+  analyticsEvents         AnalyticsEvent[]
+
+  @@index([paymentStatus])
+  @@index([generationStatus])
+  @@index([deliveryStatus])
+  @@index([purchasedDeepDiveMode])
+  @@index([technicalOutcome])
+  @@index([marketVerdict])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+model DeepDiveReport {
+  id              String             @id @default(cuid())
+  judgmentId      String             @unique
+  mode            DeepDiveMode       @default(EVIDENCE_EXECUTION)
+  reportJson      Json
+  generatedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  judgment        IdeaJudgmentRecord @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+  accessLinks     ReportAccessLink[]
+  apiUsageRecords ApiUsageRecord[]
+  analyticsEvents AnalyticsEvent[]
+}
+
+model SourceVerificationCache {
+  id            String   @id @default(cuid())
+  normalizedUrl String   @unique
+  finalUrl      String?
+  status        String
+  httpStatus    Int?
+  title         String?
+  contentType   String?
+  excerpt       String?
+  failureReason String?
+  errorCode     String?
+  errorMessage  String?
+  redirectCount Int      @default(0)
+  durationMs    Int?
+  checkedAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([checkedAt])
+}
+
+model JudgmentRun {
+  id                       String             @id @default(cuid())
+  judgmentId               String
+  jobId                    String?
+  stage                    String
+  status                   String
+  verificationCoverage     Json?
+  independentEvidenceCount Int                @default(0)
+  startedAt                DateTime?
+  completedAt              DateTime?
+  errorCode                String?
+  errorMessage             String?
+  judgment                 IdeaJudgmentRecord @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+  job                      Job?               @relation(fields: [jobId], references: [id], onDelete: SetNull)
+
+  @@index([judgmentId])
+  @@index([jobId])
+  @@index([stage])
+  @@index([status])
+}
+
+model Job {
+  id                        String                 @id @default(cuid())
+  type                      JobType
+  entityId                  String?
+  status                    JobStatus              @default(QUEUED)
+  stage                     String                 @default("QUEUED")
+  progressJson              Json?
+  ownerSessionHash          String?
+  searchExecutionConfig     Json                   @default("{}")
+  generationExecutionConfig Json                   @default("{}")
+  executionCheckpointJson   Json                   @default("{}")
+  nextEventSequence         Int                    @default(0)
+  attemptCount              Int                    @default(0)
+  maxAttempts               Int                    @default(2)
+  lastErrorCode             String?
+  lastErrorMessage          String?
+  lockedAt                  DateTime?
+  lockedBy                  String?
+  leaseExpiresAt            DateTime?
+  heartbeatAt               DateTime?
+  nextAttemptAt             DateTime               @default(now())
+  timeoutAt                 DateTime?
+  startedAt                 DateTime?
+  completedAt               DateTime?
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+  judgment                  IdeaJudgmentRecord?    @relation(fields: [entityId], references: [id], onDelete: Cascade, map: "Job_judgment_entityId_fkey")
+  events                    JobEvent[]
+  runs                      JudgmentRun[]
+  apiUsageRecords           ApiUsageRecord[]
+  credentialBindings        JobCredentialBinding[]
+  providerCalls             JobProviderCall[]
+
+  @@index([type, status])
+  @@index([status, nextAttemptAt, createdAt])
+  @@index([status, leaseExpiresAt])
+  @@index([entityId])
+  @@index([ownerSessionHash])
+  @@index([lockedAt])
+  @@index([createdAt])
+}
+
+model WorkerNode {
+  id              String    @id
+  startedAt       DateTime  @default(now())
+  heartbeatAt     DateTime  @default(now())
+  lastClaimedAt   DateTime?
+  lastSucceededAt DateTime?
+  lastFailedAt    DateTime?
+  currentJobId    String?
+  updatedAt       DateTime  @updatedAt
+
+  @@index([heartbeatAt])
+}
+
+model JobEvent {
+  id        String   @id @default(cuid())
+  jobId     String
+  eventType String
+  eventJson Json
+  sequence  Int
+  createdAt DateTime @default(now())
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, sequence])
+  @@index([jobId, sequence])
+  @@index([eventType])
+}
+
+model SourceRecord {
+  id                      String                 @id @default(cuid())
+  judgmentId              String
+  searchRequestId         String?
+  originalUrl             String
+  normalizedUrl           String?
+  canonicalUrl            String?
+  host                    String?
+  origin                  SourceOrigin           @default(UNTRUSTED_LEGACY_SOURCE)
+  provider                String?
+  providerRequestId       String?
+  evidenceAvailability    EvidenceAvailability   @default(NO_EVIDENCE)
+  sourceType              SourceType             @default(UNKNOWN)
+  accessStatus            SourceAccessStatus     @default(UNVERIFIED)
+  evidenceStrength        RecordEvidenceStrength @default(NOT_CLASSIFIED)
+  modelSuggestedStrength  RecordEvidenceStrength @default(NOT_CLASSIFIED)
+  finalEvidenceStrength   RecordEvidenceStrength @default(NOT_CLASSIFIED)
+  evidenceEligibility     EvidenceEligibility    @default(UNVERIFIED)
+  hardRuleReasonCodes     Json                   @default("[]")
+  qualifyingExcerpt       String?
+  qualifyingSignals       Json                   @default("[]")
+  paymentSignalLevel      PaymentSignalLevel     @default(NONE)
+  marketScope             MarketScope            @default(UNKNOWN)
+  verificationOrigin      String?
+  httpStatus              Int?
+  contentType             String?
+  redirectCount           Int                    @default(0)
+  verificationErrorCode   String?
+  searchDiscoveredAt      DateTime?
+  contentExtractedAt      DateTime?
+  contentExtractionStatus String?
+  extractionFailureReason String?
+  title                   String?
+  rawContent              String?
+  excerpt                 String?
+  failureReason           String?
+  sourceAnomaly           String?
+  sourceDisplayId         String?
+  contentHash             String?
+  discussionClusterId     String?
+  promptInjectionDetected Boolean                @default(false)
+  durationMs              Int?
+  checkedAt               DateTime?
+  classifiedAt            DateTime?
+  createdAt               DateTime               @default(now())
+  judgment                IdeaJudgmentRecord     @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+  searchRequest           SearchRequestRecord?   @relation(fields: [searchRequestId], references: [id], onDelete: SetNull)
+  discussionCluster       EvidenceCluster?       @relation(fields: [discussionClusterId], references: [id], onDelete: SetNull)
+
+  @@unique([judgmentId, sourceDisplayId])
+  @@index([judgmentId])
+  @@index([searchRequestId])
+  @@index([origin])
+  @@index([provider])
+  @@index([providerRequestId])
+  @@index([evidenceAvailability])
+  @@index([accessStatus])
+  @@index([sourceType])
+  @@index([evidenceStrength])
+  @@index([paymentSignalLevel])
+  @@index([marketScope])
+  @@index([canonicalUrl])
+  @@index([contentHash])
+}
+
+model SearchRequestRecord {
+  id                String             @id @default(cuid())
+  judgmentId        String
+  provider          String
+  providerRequestId String?
+  query             String
+  querySource       String?
+  market            String?
+  intent            String?
+  operation         String
+  resultCount       Int                @default(0)
+  creditsUsed       Decimal?           @db.Decimal(12, 6)
+  durationMs        Int?
+  success           Boolean            @default(true)
+  errorCode         String?
+  errorMessage      String?
+  createdAt         DateTime           @default(now())
+  judgment          IdeaJudgmentRecord @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+  sources           SourceRecord[]
+
+  @@index([judgmentId])
+  @@index([provider, operation])
+  @@index([providerRequestId])
+  @@index([createdAt])
+}
+
+model EvidenceCluster {
+  id                     String             @id @default(cuid())
+  judgmentId             String
+  clusterType            ClusterType
+  canonicalKey           String
+  representativeSourceId String?
+  sourceCount            Int                @default(0)
+  isQualifying           Boolean            @default(false)
+  createdAt              DateTime           @default(now())
+  judgment               IdeaJudgmentRecord @relation(fields: [judgmentId], references: [id], onDelete: Cascade)
+  sources                SourceRecord[]
+
+  @@unique([judgmentId, clusterType, canonicalKey])
+  @@index([judgmentId])
+  @@index([clusterType])
+  @@index([canonicalKey])
+}
+
+model ReportAccessLink {
+  id               String             @id @default(cuid())
+  deepDiveReportId String
+  tokenHash        String             @unique
+  status           ReportAccessStatus @default(ACTIVE)
+  expiresAt        DateTime?
+  revokedAt        DateTime?
+  lastAccessedAt   DateTime?
+  viewCount        Int                @default(0)
+  createdAt        DateTime           @default(now())
+  deepDiveReport   DeepDiveReport     @relation(fields: [deepDiveReportId], references: [id], onDelete: Cascade)
+
+  @@index([deepDiveReportId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model ApiUsageRecord {
+  id                       String              @id @default(cuid())
+  judgmentId               String?
+  deepDiveId               String?
+  jobId                    String?
+  provider                 String
+  providerType             ProviderType        @default(GENERATION)
+  credentialSource         CredentialSource    @default(PLATFORM)
+  credentialId             String?
+  operation                String
+  model                    String?
+  inputTokens              Int?
+  outputTokens             Int?
+  requestCount             Int                 @default(1)
+  creditsUsed              Decimal?            @db.Decimal(12, 6)
+  estimatedCostCny         Decimal?            @db.Decimal(12, 6)
+  estimatedPlatformCostCny Decimal?            @db.Decimal(12, 6)
+  durationMs               Int?
+  success                  Boolean             @default(true)
+  errorCode                String?
+  estimated                Boolean             @default(false)
+  createdAt                DateTime            @default(now())
+  judgment                 IdeaJudgmentRecord? @relation(fields: [judgmentId], references: [id], onDelete: SetNull)
+  deepDiveReport           DeepDiveReport?     @relation(fields: [deepDiveId], references: [id], onDelete: SetNull)
+  job                      Job?                @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  credential               ApiCredential?      @relation(fields: [credentialId], references: [id], onDelete: SetNull)
+
+  @@index([judgmentId])
+  @@index([deepDiveId])
+  @@index([jobId])
+  @@index([credentialId])
+  @@index([providerType, credentialSource])
+  @@index([provider, operation])
+  @@index([createdAt])
+}
+
+model AnalyticsEvent {
+  id                 String              @id @default(cuid())
+  anonymousSessionId String?
+  eventType          String
+  judgmentId         String?
+  deepDiveReportId   String?
+  propertiesJson     Json?
+  createdAt          DateTime            @default(now())
+  judgment           IdeaJudgmentRecord? @relation(fields: [judgmentId], references: [id], onDelete: SetNull)
+  deepDiveReport     DeepDiveReport?     @relation(fields: [deepDiveReportId], references: [id], onDelete: SetNull)
+
+  @@index([anonymousSessionId])
+  @@index([eventType])
+  @@index([judgmentId])
+  @@index([deepDiveReportId])
+  @@index([createdAt])
+}
+
+model DataCleanupRun {
+  id                        String    @id @default(cuid())
+  jobId                     String?   @unique
+  mode                      String
+  status                    String
+  startedAt                 DateTime  @default(now())
+  completedAt               DateTime?
+  deletedReportCount        Int       @default(0)
+  anonymizedReportCount     Int       @default(0)
+  clearedSourceContentCount Int       @default(0)
+  deletedAnalyticsCount     Int       @default(0)
+  deletedApiUsageCount      Int       @default(0)
+  revokedLinkCount          Int       @default(0)
+  clearedJobPayloadCount    Int       @default(0)
+  deletedAdminSessionCount  Int       @default(0)
+  clearedApiCredentialCount Int       @default(0)
+  errorCount                Int       @default(0)
+  errorSummary              Json      @default("[]")
+  createdAt                 DateTime  @default(now())
+
+  @@index([status])
+  @@index([startedAt])
+}
+
+model ReportDeletionAudit {
+  id                   String   @id @default(cuid())
+  subjectHash          String
+  source               String
+  revokedLinkCount     Int      @default(0)
+  deletedDeepDiveCount Int      @default(0)
+  deletedSourceCount   Int      @default(0)
+  deletedEventCount    Int      @default(0)
+  createdAt            DateTime @default(now())
+
+  @@index([subjectHash])
+  @@index([createdAt])
+}
+
+model AdminAuditLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  orderId   String?
+  oldValue  Json?
+  newValue  Json?
+  reason    String?
+  requestId String
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([orderId])
+  @@index([requestId])
+  @@index([createdAt])
+}
+
+model AdminSession {
+  id            String    @id @default(cuid())
+  tokenHash     String    @unique
+  csrfTokenHash String
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@index([createdAt])
+}
+
+model AnonymousSession {
+  id            String    @id @default(cuid())
+  tokenHash     String    @unique
+  csrfTokenHash String
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  credentials ApiCredential[]
+
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model ApiCredential {
+  id                   String                 @id @default(cuid())
+  ownerSessionHash     String
+  kind                 ApiCredentialKind
+  provider             String
+  encryptedSecret      String?
+  encryptionIv         String?
+  encryptionAuthTag    String?
+  encryptionKeyVersion Int
+  keyLastFour          String
+  selectedModel        String?
+  status               ApiCredentialStatus    @default(PENDING_VERIFICATION)
+  lastVerifiedAt       DateTime?
+  lastUsedAt           DateTime?
+  expiresAt            DateTime
+  revokedAt            DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  ownerSession         AnonymousSession       @relation(fields: [ownerSessionHash], references: [tokenHash], onDelete: Cascade)
+  jobBindings          JobCredentialBinding[]
+  apiUsageRecords      ApiUsageRecord[]
+
+  @@index([ownerSessionHash])
+  @@index([kind, provider])
+  @@index([expiresAt])
+  @@index([status])
+}
+
+model JobCredentialBinding {
+  id                   String           @id @default(cuid())
+  jobId                String
+  credentialId         String
+  purpose              ProviderType
+  providerSnapshot     String
+  modelSnapshot        String?
+  credentialSource     CredentialSource
+  configurationVersion Int
+  createdAt            DateTime         @default(now())
+  job                  Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  credential           ApiCredential    @relation(fields: [credentialId], references: [id], onDelete: Restrict)
+
+  @@unique([jobId, purpose])
+  @@index([credentialId])
+}
+
+model JobProviderCall {
+  id           String       @id @default(cuid())
+  jobId        String
+  callKey      String
+  provider     String
+  providerType ProviderType
+  resultJson   Json
+  completedAt  DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  job          Job          @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, callKey])
+  @@index([jobId, providerType])
+}

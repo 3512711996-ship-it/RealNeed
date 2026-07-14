@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">RealNeed Case Lines</title>
+  <desc id="desc">A case file frame with compressed signal lines and one decision point.</desc>
+  <defs>
+    <clipPath id="case-lines-clip">
+      <rect x="20" y="22" width="60" height="56" rx="14"/>
+    </clipPath>
+  </defs>
+  <rect x="20" y="22" width="60" height="56" rx="14" fill="none" stroke="currentColor" stroke-width="4"/>
+  <g clip-path="url(#case-lines-clip)" fill="none" stroke="currentColor" stroke-linecap="round">
+    <path d="M27 36h33" stroke-width="4"/>
+    <path d="M27 48h45" stroke-width="3" opacity=".64"/>
+    <path d="M27 60h26" stroke-width="4"/>
+    <path d="M62 60h10" stroke-width="4" opacity=".34"/>
+  </g>
+  <circle cx="69" cy="35" r="5" fill="currentColor"/>
+</svg>

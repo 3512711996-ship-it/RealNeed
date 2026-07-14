@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">RealNeed Final B Truth Nodes</title>
+  <desc id="desc">Verified evidence nodes converging into one judgment signal.</desc>
+  <g fill="none" stroke="currentColor" stroke-linecap="round">
+    <path d="M30 34c13 4 23 12 30 28" stroke-width="3.4" opacity=".68"/>
+    <path d="M66 29c-6 11-8 22-6 33" stroke-width="3.4" opacity=".42"/>
+    <path d="M34 71c9-5 18-6 26-9" stroke-width="3.4"/>
+    <path d="M30 34h36" stroke-width="3" opacity=".2"/>
+  </g>
+  <circle cx="30" cy="34" r="7" fill="currentColor"/>
+  <circle cx="66" cy="29" r="5.5" fill="currentColor" opacity=".72"/>
+  <circle cx="34" cy="71" r="5.5" fill="currentColor" opacity=".5"/>
+  <circle cx="60" cy="62" r="10" fill="currentColor"/>
+</svg>

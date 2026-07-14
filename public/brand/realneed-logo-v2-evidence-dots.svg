@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title desc">
+  <title id="title">RealNeed Evidence Dots</title>
+  <desc id="desc">A restrained dot matrix forming an evidence wall and signal path.</desc>
+  <g fill="currentColor">
+    <rect x="24" y="25" width="12" height="12" rx="4"/>
+    <rect x="44" y="25" width="12" height="12" rx="4" opacity=".42"/>
+    <rect x="64" y="25" width="12" height="12" rx="4"/>
+    <rect x="24" y="45" width="12" height="12" rx="4" opacity=".42"/>
+    <rect x="44" y="45" width="12" height="12" rx="4"/>
+    <rect x="64" y="45" width="12" height="12" rx="4" opacity=".42"/>
+    <rect x="24" y="65" width="12" height="12" rx="4"/>
+    <rect x="64" y="65" width="12" height="12" rx="4"/>
+  </g>
+  <path d="M31 71 50 51 70 31" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+</svg>
