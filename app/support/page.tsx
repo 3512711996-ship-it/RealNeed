@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { Code2, ExternalLink, HeartHandshake, MessageCircle, QrCode } from "lucide-react";
 import { getServerEnv } from "@/lib/env";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const metadata = { title: "支持与交流 | RealNeed" };
 
 export default function SupportPage() {
