@@ -100,6 +100,41 @@ describe("direct source verification", () => {
     expect(sources[0]?.isAccessible).toBe(false);
   });
 
+  it("uses Reddit's public JSON representation only after the post page is blocked", async () => {
+    const candidate: SourceCandidate = {
+      id: "reddit-post",
+      title: "A Reddit post",
+      url: "https://www.reddit.com/r/example/comments/abc123/a_post",
+      platform: "reddit",
+      query: "test"
+    };
+    const requests: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      requests.push(url);
+      if (!url.includes(".json")) return new Response("blocked", { status: 403 });
+      return new Response(JSON.stringify([{ data: { children: [{ data: { title: "I hate this workflow", selftext: readableText() } }] } }]), {
+        status: 200,
+        headers: { "content-type": "application/json" }
+      });
+    }) as typeof fetch;
+
+    const result = await verifySourcesConcurrently([candidate], {
+      fetchImpl,
+      disableCache: true,
+      concurrency: 1,
+      perHostConcurrency: 1,
+      timeoutMs: 1000,
+      totalBudgetMs: 3000
+    });
+    const source = result.results[0];
+
+    expect(source?.status).toBe("ACCESSIBLE");
+    expect(source?.verificationOrigin).toBe("REDDIT_PUBLIC_JSON");
+    expect(source?.finalUrl).toBe("https://www.reddit.com/r/example/comments/abc123/a_post");
+    expect(source?.excerpt).toContain("concrete repeated workflow");
+    expect(requests).toHaveLength(2);
+  });
+
   it("uses verified page text, not a non-extract provider snippet, to confirm evidence", () => {
     const normalizedUrl = "https://example.com/brave-result";
     const stage = completedStage();

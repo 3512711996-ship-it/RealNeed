@@ -77,7 +77,11 @@ export async function generateSearchQueryPlan(
       usage: usage ? { ...usage, operation: "query_generation" } : undefined
     });
 
-    return uniqueQueries(response.queries);
+    const qualityChecked = filterEvidenceSeekingQueries(uniqueQueries(response.queries));
+    if (qualityChecked.length < 3) {
+      throw new QueryGenerationError("生成的搜索词缺少足够的用户痛点、替代方案或付费验证语义，已停止本次搜索。");
+    }
+    return qualityChecked;
   } catch (error) {
     if (error instanceof ProviderExecutionError) throw error;
     const message = error instanceof Error ? error.message : "Kimi query generation failed";
@@ -87,6 +91,34 @@ export async function generateSearchQueryPlan(
 
 export function queriesToStrings(items: SearchQueryPlanItem[]) {
   return items.map((item) => item.query);
+}
+
+/**
+ * Search must start from evidence-seeking language, not generic startup advice.
+ * This is a guardrail on model output, not a local query-generation fallback.
+ */
+export function filterEvidenceSeekingQueries(items: SearchQueryPlanItem[]) {
+  return items.filter((item) => {
+    const query = item.query.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!query || isGenericStartupQuery(query)) return false;
+    return hasIntentEvidenceMarker(query, item.intent);
+  });
+}
+
+function isGenericStartupQuery(query: string) {
+  const genericStartup = /\b(indie hackers?|build (a |an )?product|startup ideas?|validate (a |an )?idea|saas ideas?|no one wants)\b/;
+  const userEvidence = /\b(i hate|i am tired of|struggling|how do you handle|is there a tool|what do you use|alternative|too complicated|complaint|manual|spreadsheet|excel|notion|pricing|willing to pay)\b|痛点|抱怨|求推荐|太复杂|手动|表格|替代方案|愿意付费/;
+  return genericStartup.test(query) && !userEvidence.test(query);
+}
+
+function hasIntentEvidenceMarker(query: string, intent: SearchQueryPlanItem["intent"]) {
+  const markers = {
+    PAIN: /\b(i hate|i am tired of|struggling|too complicated|problem|pain point|complaint|frustrat|annoying)\b|痛点|抱怨|麻烦|不好用|太复杂|求助/,
+    WORKAROUND: /\b(manual|spreadsheet|excel|notion|copy and paste|workflow|workaround|how do you handle|what do you use)\b|手动|表格|复制粘贴|流程|怎么处理/,
+    PAYMENT: /\b(willing to pay|pay for|pricing|price|subscription|cost)\b|愿意付费|付费|价格|订阅|收费/,
+    COMPETITOR: /\b(any alternative to|alternative|switch from|replace)\b|替代方案|替代|换掉/
+  } satisfies Record<SearchQueryPlanItem["intent"], RegExp>;
+  return markers[intent].test(query);
 }
 
 function uniqueQueries(items: SearchQueryPlanItem[]) {

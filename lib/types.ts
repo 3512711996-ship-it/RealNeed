@@ -104,7 +104,7 @@ export type DirectVerificationStatus =
 
 export type SourceVerificationStatus = DirectVerificationStatus;
 
-export type VerificationOrigin = "CACHE" | "LIVE" | "MANUAL";
+export type VerificationOrigin = "CACHE" | "LIVE" | "MANUAL" | "REDDIT_PUBLIC_JSON";
 
 export type PipelineStageMetrics = {
   startedAt: string | null;

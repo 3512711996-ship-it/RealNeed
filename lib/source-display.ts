@@ -91,7 +91,8 @@ const originLabels: Record<SourceOrigin, string> = {
 const verificationOriginLabels: Record<VerificationOrigin, string> = {
   LIVE: "本次实时验证",
   CACHE: "验证缓存",
-  MANUAL: "用户粘贴"
+  MANUAL: "用户粘贴",
+  REDDIT_PUBLIC_JSON: "Reddit 公开 JSON 验证"
 };
 
 export function formatEvidenceReasonCodes(codes: EvidenceReasonCode[] | undefined) {

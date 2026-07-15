@@ -338,6 +338,12 @@ async function verifyCandidate(
   const sourceContext = { ...context, deadline: sourceDeadline, budgetDeadline: context.deadline };
   const first = await verifyLive(candidate, normalizedUrl, sourceContext, startedAt);
 
+  const redditFallback = await verifyRedditPublicJson(candidate, normalizedUrl, first, sourceContext, startedAt);
+  if (redditFallback) {
+    if (!context.disableCache) await writeVerificationCache(redditFallback);
+    return redditFallback;
+  }
+
   if (shouldRetry(first) && Date.now() < sourceDeadline) {
     const retry = await verifyLive(candidate, normalizedUrl, sourceContext, startedAt);
     if (!context.disableCache) await writeVerificationCache(retry);
@@ -346,6 +352,68 @@ async function verifyCandidate(
 
   if (!context.disableCache) await writeVerificationCache(first);
   return first;
+}
+
+async function verifyRedditPublicJson(
+  candidate: NormalizedCandidate,
+  normalizedUrl: string,
+  first: SourceVerificationResult,
+  context: {
+    timeoutMs: number;
+    deadline: number;
+    budgetDeadline: number;
+    budgetSignal: AbortSignal;
+    metrics: VerificationMetrics;
+    fetchImpl?: typeof fetch;
+    disableCache: boolean;
+  },
+  startedAt: number
+): Promise<SourceVerificationResult | null> {
+  if (!shouldTryRedditPublicJson(first)) return null;
+
+  const endpoint = redditPublicJsonEndpoint(normalizedUrl);
+  if (!endpoint || Date.now() >= context.deadline || context.budgetSignal.aborted) return null;
+
+  const verified = await verifyLive(candidate, endpoint, context, startedAt);
+  if (verified.status !== "ACCESSIBLE" && verified.status !== "REDIRECTED_ACCESSIBLE") return null;
+  if (!hasSufficientRedditJsonText(verified.excerpt)) return null;
+
+  return {
+    ...verified,
+    normalizedUrl,
+    // Preserve the post URL for users. The origin label reveals that its
+    // public Reddit JSON representation, not a direct HTML page, was read.
+    finalUrl: normalizedUrl,
+    platform: "reddit",
+    verificationOrigin: "REDDIT_PUBLIC_JSON"
+  };
+}
+
+function shouldTryRedditPublicJson(result: SourceVerificationResult) {
+  if (!["BLOCKED", "RATE_LIMITED", "NETWORK_ERROR", "TIMEOUT"].includes(result.status)) return false;
+  return Boolean(redditPublicJsonEndpoint(result.normalizedUrl || result.originalUrl));
+}
+
+function redditPublicJsonEndpoint(url: string) {
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    if (hostname !== "reddit.com" || !/^\/r\/[^/]+\/comments\/[^/]+/i.test(parsed.pathname)) return "";
+
+    parsed.hostname = "www.reddit.com";
+    parsed.pathname = `${parsed.pathname.replace(/\.json$/i, "").replace(/\/$/, "")}.json`;
+    parsed.search = "";
+    parsed.searchParams.set("raw_json", "1");
+    parsed.searchParams.set("limit", "20");
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+}
+
+function hasSufficientRedditJsonText(value: string | undefined) {
+  const text = value?.replace(/\s+/g, " ").trim() ?? "";
+  return text.length >= 180 && (text.match(/[A-Za-z0-9]+|[\u4e00-\u9fff]{2,}/g)?.length ?? 0) >= 24;
 }
 
 async function verifyLive(

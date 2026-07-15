@@ -162,7 +162,7 @@ function normalize(value: string) {
 }
 
 function asVerificationOrigin(value: string | null) {
-  return value === "CACHE" || value === "LIVE" || value === "MANUAL" ? value : undefined;
+  return value === "CACHE" || value === "LIVE" || value === "MANUAL" || value === "REDDIT_PUBLIC_JSON" ? value : undefined;
 }
 
 function asExtractionStatus(value: string | null): ScannedSource["contentExtractionStatus"] | undefined {
