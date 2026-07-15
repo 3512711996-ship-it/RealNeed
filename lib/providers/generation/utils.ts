@@ -5,15 +5,66 @@ import type { GenerationProviderName } from "@/lib/providers/generation/capabili
 export function parseStructuredOutput<T>(provider: GenerationProviderName, output: unknown, schema: ZodType<T>): T {
   let value = output;
   if (typeof output === "string") {
-    try {
-      value = JSON.parse(output.trim());
-    } catch {
-      throw providerResponseInvalid(provider, "GENERATION");
-    }
+    value = parseJsonObject(output, provider);
   }
   const parsed = schema.safeParse(value);
   if (!parsed.success) throw providerResponseInvalid(provider, "GENERATION");
   return parsed.data;
+}
+
+function parseJsonObject(output: string, provider: GenerationProviderName): unknown {
+  const direct = output.trim();
+  const fenced = direct.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i)?.[1]?.trim();
+  const candidates = [direct, fenced].filter((item): item is string => Boolean(item));
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      // Continue to an exact object extraction below. The final schema check remains mandatory.
+    }
+  }
+
+  const embedded = extractSingleJsonObject(direct);
+  if (embedded) {
+    try {
+      return JSON.parse(embedded);
+    } catch {
+      // Fall through to the fail-closed provider error.
+    }
+  }
+
+  throw providerResponseInvalid(provider, "GENERATION");
+}
+
+function extractSingleJsonObject(value: string) {
+  const start = value.indexOf("{");
+  if (start < 0) return null;
+
+  let depth = 0;
+  let quoted = false;
+  let escaped = false;
+
+  for (let index = start; index < value.length; index += 1) {
+    const character = value[index];
+    if (quoted) {
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === "\"") quoted = false;
+      continue;
+    }
+    if (character === "\"") quoted = true;
+    else if (character === "{") depth += 1;
+    else if (character === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        const remaining = value.slice(index + 1).trim();
+        return remaining && remaining.replace(/^```$/, "").trim() ? null : value.slice(start, index + 1);
+      }
+    }
+  }
+
+  return null;
 }
 
 export function schemaToJsonSchema(schema: ZodType<unknown>) {
