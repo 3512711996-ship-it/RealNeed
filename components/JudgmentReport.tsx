@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { AlertTriangle, ClipboardPaste } from "lucide-react";
 import { CopyButton } from "@/components/CopyButton";
 import { DeepDiveLocked } from "@/components/DeepDiveLocked";
+import { EvidenceAuditSummary } from "@/components/EvidenceAuditSummary";
 import { FilteredSources } from "@/components/FilteredSources";
 import { JudgmentScoreBars } from "@/components/JudgmentScoreBars";
 import { NoSignalState } from "@/components/NoSignalState";
@@ -61,6 +62,7 @@ export function JudgmentReport({
       <VerdictBanner judgment={judgment} />
       <JudgmentScoreBars judgment={judgment} />
       <ScanFunnel judgment={judgment} />
+      <EvidenceAuditSummary judgment={judgment} />
 
       <section className="mx-auto max-w-[1120px] px-4 pb-4 sm:px-6">
         <details className="rounded-[8px] border border-line bg-white p-4 shadow-paper">
